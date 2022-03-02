@@ -7,7 +7,12 @@ import layers
 
 
 def create_model(input_size):
-    pass
+    model = Model(input_size)
+    model.layers_list()
+    default_data = np.zeros((200, 128, 128))
+    data_layer = layers.Data(default_data)
+    model.layers_list.append(data_layer)
+    return model
 
 
 def add_conv_layer(model, num_channels, filter_size, activation, T, b):
@@ -64,14 +69,55 @@ def convolve2D(image, kernel, padding=0, strides=1):
     return output
 
 
-class Network(layers.BaseNetwork):
+def perform_classification(task, images):
+    pass
+
+
+def maxpool2D(image, kernel_size, padding=0, strides=1):
+
+    xKernShape = kernel_size
+    yKernShape = kernel_size
+    xImgShape = image.shape[0]
+    yImgShape = image.shape[1]
+    xOutput = int(((xImgShape - xKernShape + 2 * padding) / strides) + 1)
+    yOutput = int(((yImgShape - yKernShape + 2 * padding) / strides) + 1)
+    output = np.zeros((xOutput, yOutput))
+
+    if padding != 0:
+        imagePadded = np.zeros(
+            (image.shape[0] + padding * 2, image.shape[1] + padding * 2))
+        imagePadded[int(padding):int(-1 * padding),
+                    int(padding):int(-1 * padding)] = image
+        # print(imagePadded)
+    else:
+        imagePadded = image
+
+    # Iterate through image
+    for y in range(image.shape[1]):
+        # Exit Convolution
+        if y > image.shape[1] - yKernShape:
+            break
+        # Only Convolve if y has gone down by the specified Strides
+        if y % strides == 0:
+            for x in range(image.shape[0]):
+                # Go to next row once kernel is out of bounds
+                if x > image.shape[0] - xKernShape:
+                    break
+                try:
+                    # Only Convolve if x has moved by the specified Strides
+                    if x % strides == 0:
+                        output[x, y] = (
+                            kernel * imagePadded[x: x + xKernShape, y: y + yKernShape]).sum()
+                except:
+                    break
+
+
+class Model():
     # TODO: you might need to pass additional arguments to init for prob 2, 3, 4 and mnist
 
-    def __init__(self, data_layer, hidden_units, hidden_layers):
+    def __init__(self, input_size):
 
         # you should always call __init__ first
-
-        super().__init__()
 
         # TODO: define our network architecture here
 
@@ -80,20 +126,11 @@ class Network(layers.BaseNetwork):
         # self.layer_4_relu = layers.Relu(self.layer_3_bias)
         # self.layer_5_linear = layers.Linear(self.layer_4_relu, 1)
         # self.layer_6_bias = layers.Bias(self.layer_5_linear)
-
-        self.MY_MODULE_LIST = layers.ModuleList()
-        self.MY_MODULE_LIST.append(data_layer)
-        for i in range(hidden_layers):
-            self.MY_MODULE_LIST.append(layers.Linear(
-                self.MY_MODULE_LIST[-1], hidden_units[i]))
-            self.MY_MODULE_LIST.append(layers.Bias(self.MY_MODULE_LIST[-1]))
-            self.MY_MODULE_LIST.append(layers.Relu(self.MY_MODULE_LIST[-1]))
-
-        self.MY_MODULE_LIST.append(layers.Linear(self.MY_MODULE_LIST[-1], 1))
-        self.MY_MODULE_LIST.append(layers.Bias(self.MY_MODULE_LIST[-1]))
+        self.input_size = input_size
+        self.layers_list = []
         # TODO: always call self.set_output_layer with the output layer of this network (usually the last layer)
 
-        self.set_output_layer(self.MY_MODULE_LIST[-1])
+        # self.set_output_layer(self.MY_MODULE_LIST[-1])
 
 
 def main():
@@ -142,9 +179,9 @@ def main():
     # kernel = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
     # output = convolve2D(images_Task1_Class0[1, :, :], kernel, padding=0)
     # plt.figure(1)
-    # plt.imshow(images_Task1_Class0[1, :, :])
+    # plt.imshow(images_Task1_Class0[1, :, :], 'gray')
     # plt.figure(2)
-    # plt.imshow(output)
+    # plt.imshow(output, 'gray')
     # plt.show()
 
     # print(images_Task1_Class0.shape)
