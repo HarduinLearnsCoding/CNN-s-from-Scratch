@@ -3,6 +3,7 @@ import numpy as np
 import os
 from pathlib import Path
 import matplotlib.pyplot as plt
+import layers
 
 
 def create_model(input_size):
@@ -61,6 +62,38 @@ def convolve2D(image, kernel, padding=0, strides=1):
                     break
 
     return output
+
+
+class Network(layers.BaseNetwork):
+    # TODO: you might need to pass additional arguments to init for prob 2, 3, 4 and mnist
+
+    def __init__(self, data_layer, hidden_units, hidden_layers):
+
+        # you should always call __init__ first
+
+        super().__init__()
+
+        # TODO: define our network architecture here
+
+        # self.layer_2_linear = layers.Linear(data_layer, hidden_units)
+        # self.layer_3_bias = layers.Bias(self.layer_2_linear)
+        # self.layer_4_relu = layers.Relu(self.layer_3_bias)
+        # self.layer_5_linear = layers.Linear(self.layer_4_relu, 1)
+        # self.layer_6_bias = layers.Bias(self.layer_5_linear)
+
+        self.MY_MODULE_LIST = layers.ModuleList()
+        self.MY_MODULE_LIST.append(data_layer)
+        for i in range(hidden_layers):
+            self.MY_MODULE_LIST.append(layers.Linear(
+                self.MY_MODULE_LIST[-1], hidden_units[i]))
+            self.MY_MODULE_LIST.append(layers.Bias(self.MY_MODULE_LIST[-1]))
+            self.MY_MODULE_LIST.append(layers.Relu(self.MY_MODULE_LIST[-1]))
+
+        self.MY_MODULE_LIST.append(layers.Linear(self.MY_MODULE_LIST[-1], 1))
+        self.MY_MODULE_LIST.append(layers.Bias(self.MY_MODULE_LIST[-1]))
+        # TODO: always call self.set_output_layer with the output layer of this network (usually the last layer)
+
+        self.set_output_layer(self.MY_MODULE_LIST[-1])
 
 
 def main():
