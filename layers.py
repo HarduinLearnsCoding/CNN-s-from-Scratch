@@ -95,11 +95,55 @@ class pool2D:
         self.in_layer = in_layer
         self.dim = dim
         self.type_pool = type_pool
+        self.stride = 1
+        self.padding = 0
         pass
 
     def forward(self):
         self.in_array = self.in_layer.forward()
         print("pool2D called")
+
+        image = self.in_array[:, :, 0]
+        # plt.imshow(image)
+        # plt.show()
+        padding = self.padding
+        strides = self.stride
+        dim = [3, 3]
+        xKernShape = dim[0]
+        yKernShape = dim[1]
+        xImgShape = image.shape[0]
+        yImgShape = image.shape[1]
+        xOutput = int(((xImgShape - xKernShape + 2 * padding) / strides) + 1)
+        yOutput = int(((yImgShape - yKernShape + 2 * padding) / strides) + 1)
+        output = np.zeros((xOutput, yOutput))
+        # print(xKernShape)
+        # print(yKernShape)
+
+        for y in range(image.shape[1]):
+            # Exit Convolution
+            if y > image.shape[1] - yKernShape:
+                break
+            # Only Convolve if y has gone down by the specified Strides
+            if y % strides == 0:
+                for x in range(image.shape[0]):
+                    # Go to next row once kernel is out of bounds
+                    if x > image.shape[0] - xKernShape:
+                        break
+                    try:
+                        # Only Convolve if x has moved by the specified Strides
+                        if x % strides == 0:
+                            output[x, y] = np.max(
+                                image[x: x + xKernShape, y: y + yKernShape]).sum()
+                    except:
+                        break
+
+        # plt.figure(1)
+        # plt.imshow(output)
+        # plt.figure(2)
+        # plt.imshow(image)
+        # plt.show()
+
+        # print("Shape after pooling", output.shape)
 
         return self.in_array
 
@@ -114,6 +158,7 @@ class full2D:
 
     def forward(self):
         self.in_array = self.in_layer.forward()
+
         print("full2D called")
 
         return self.in_array

@@ -214,7 +214,7 @@ def main():
     # DEBUGGING ----------------------------------------------------------
 
     # print(model.layers_list)
-    # print(model.layers_list[-1].forward())
+    print(model.layers_list[-1].forward())
     # print(model.layers_list[-1].forward().shape)
     # print(model.layers_list[0].forward())
 
