@@ -8,7 +8,7 @@ import layers
 
 def create_model(input_size):
     model = Model(input_size)
-    default_data = np.zeros((200, 128, 128))
+    default_data = np.zeros((input_size))
     data_layer = layers.Data(default_data)
     model.layers_list.append(data_layer)
     return model
@@ -17,7 +17,8 @@ def create_model(input_size):
 def add_conv_layer(model, num_channels, filter_size, activation, T, b):
     # conv_layer = layers.conv2D(num_channels, filter_size, activation, T, b)
     # print(model.layers_list[-1])
-    conv_layer = layers.conv2D(model.layers_list[-1])
+    conv_layer = layers.conv2D(
+        model.layers_list[-1], num_channels, filter_size, activation, T, b)
     model.layers_list.append(conv_layer)
     return model
 
@@ -25,7 +26,7 @@ def add_conv_layer(model, num_channels, filter_size, activation, T, b):
 def add_pooling_layer(model, dim, type):
     # pool_layer = layers.pool2D(dim, type)
     # print(model.layers_list[-1])
-    pool_layer = layers.pool2D(model.layers_list[-1])
+    pool_layer = layers.pool2D(model.layers_list[-1], dim, type)
     model.layers_list.append(pool_layer)
     return model
 
@@ -33,7 +34,7 @@ def add_pooling_layer(model, dim, type):
 def add_FC_sigmoid_layer(model, b, T):
     # fully_layer = layers.full2D(b, T)
     # print(model.layers_list[-1])
-    fully_layer = layers.full2D(model.layers_list[-1])
+    fully_layer = layers.full2D(model.layers_list[-1], b, T)
     model.layers_list.append(fully_layer)
     return model
 
@@ -124,31 +125,18 @@ def maxpool2D(image, kernel_size, padding=0, strides=1):
 
 
 class Model():
-    # TODO: you might need to pass additional arguments to init for prob 2, 3, 4 and mnist
 
     def __init__(self, input_size):
 
-        # you should always call __init__ first
-
-        # TODO: define our network architecture here
-
-        # self.layer_2_linear = layers.Linear(data_layer, hidden_units)
-        # self.layer_3_bias = layers.Bias(self.layer_2_linear)
-        # self.layer_4_relu = layers.Relu(self.layer_3_bias)
-        # self.layer_5_linear = layers.Linear(self.layer_4_relu, 1)
-        # self.layer_6_bias = layers.Bias(self.layer_5_linear)
         self.input_size = input_size
         self.layers_list = []
-        # TODO: always call self.set_output_layer with the output layer of this network (usually the last layer)
-
-        # self.set_output_layer(self.MY_MODULE_LIST[-1])
 
 
 def main():
 
     # Reading in Images
 
-    dataset_size = (200, 128, 128)
+    dataset_size = (128, 128, 200)
 
     images_Task1_Class0 = list()
     for file in Path("Images/PS2_Images_Task_1_Class_0").iterdir():
@@ -187,9 +175,29 @@ def main():
     images_Task3_Class0 = np.array(images_Task3_Class0)
     images_Task3_Class1 = np.array(images_Task3_Class1)
 
-    images_Task1 = np.concatenate((images_Task1_Class0, images_Task1_Class1))
-    images_Task2 = np.concatenate((images_Task2_Class0, images_Task2_Class1))
-    images_Task3 = np.concatenate((images_Task3_Class0, images_Task3_Class1))
+    images_Task1 = np.zeros((128, 128, 200))
+    images_Task2 = np.zeros((128, 128, 200))
+    images_Task3 = np.zeros((128, 128, 200))
+
+    images_Task1_preshaping = np.concatenate(
+        (images_Task1_Class0, images_Task1_Class1))
+    images_Task2_preshaping = np.concatenate(
+        (images_Task2_Class0, images_Task2_Class1))
+    images_Task3_preshaping = np.concatenate(
+        (images_Task3_Class0, images_Task3_Class1))
+
+    for i in range(images_Task1.shape[0]):
+        images_Task1[:, :, i] = images_Task1_preshaping[i, :, :]
+
+    for i in range(images_Task1.shape[0]):
+        images_Task2[:, :, i] = images_Task2_preshaping[i, :, :]
+
+    for i in range(images_Task1.shape[0]):
+        images_Task3[:, :, i] = images_Task3_preshaping[i, :, :]
+
+    # print(images_Task1.shape)
+    # print(images_Task2.shape)
+    # print(images_Task3.shape)
 
     model = create_model(dataset_size)
 
@@ -203,10 +211,11 @@ def main():
     model = add_pooling_layer(model, 1, 1)
     model = add_FC_sigmoid_layer(model, 1, 1)
 
-    # Debugging Help
+    # DEBUGGING ----------------------------------------------------------
 
-    print(model.layers_list)
-    print(model.layers_list[-1].forward())
+    # print(model.layers_list)
+    # print(model.layers_list[-1].forward())
+    # print(model.layers_list[-1].forward().shape)
     # print(model.layers_list[0].forward())
 
     # print(model.layers_list[0].forward())
@@ -214,6 +223,11 @@ def main():
     # print(images_Task1.shape)
     # print(images_Task2.shape)
     # print(images_Task3.shape)
+
+    # print((images_Task1_preshaping[0, :, :] == images_Task1[:, :, 0]).all())
+    # print((images_Task1_preshaping[1, :, :] == images_Task1[:, :, 1]).all())
+    # print((images_Task1_preshaping[0, :, :] ==
+    #        images_Task1_Class0[0, :, :]).all())
 
     # Testing convolve2D
 

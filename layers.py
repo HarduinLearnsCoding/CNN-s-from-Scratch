@@ -1,5 +1,6 @@
 import numpy as np
 import collections.abc
+import matplotlib.pyplot as plt
 
 
 class Data:
@@ -12,6 +13,7 @@ class Data:
 
     def set_data(self, data):
         self.data = data
+        # print(data.shape)
 
     def forward(self):
         return self.data
@@ -21,50 +23,93 @@ class conv2D:
     """Given an input matrix X, with one feature vector per row,
     this layer computes XW, where W is a linear operator."""
 
-    def __init__(self, in_layer):
+    def __init__(self, in_layer, num_filters, filter_size, activation, T, bias):
+
         self.in_layer = in_layer
-        pass
-        # assert len(
-        #     in_layer.out_dims) == 2, "Input layer must contain a list of 1D linear feature data."
-
-        # self.in_layer = in_layer
-        # num_data, num_in_features = in_layer.out_dims
-
-        # # TODO: Set out_dims to the shape of the output of this linear layer as a numpy array e.g. self.out_dims = np.array([x, y])
-        # self.out_dims = np.array([num_data, num_out_features])
-
-        # # TODO: Declare the weight matrix. Be careful how you initialize the matrix.
-
-        # self.W = np.random.randn(
-        #     num_in_features, num_out_features) / np.sqrt(num_in_features)
+        self.num_filters = num_filters
+        self.filter_size = filter_size
+        self.activation = activation
+        self.T = T
+        self.bias = bias
+        self.filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
+        self.padding = 0
+        self.stride = 1
 
     def forward(self):
-        """This function computes XW"""
+
         self.in_array = self.in_layer.forward()
         print("conv2D called")
 
-        # TODO: Compute the result of linear layer with weight W, and store it as self.out_array
-        # self.out_array = self.in_array @ self.W
+        kernel = np.flipud(np.fliplr(self.filter))
+        padding = self.padding
+        strides = self.stride
+        image = self.in_array[:, :, 0]
+        xKernShape = kernel.shape[0]
+        yKernShape = kernel.shape[1]
+        xImgShape = image.shape[0]
+        yImgShape = image.shape[1]
+        xOutput = int(((xImgShape - xKernShape + 2 * padding) / strides) + 1)
+        yOutput = int(((yImgShape - yKernShape + 2 * padding) / strides) + 1)
+        output = np.zeros((xOutput, yOutput))
+
+        if padding != 0:
+            imagePadded = np.zeros(
+                (image.shape[0] + padding * 2, image.shape[1] + padding * 2))
+            imagePadded[int(padding):int(-1 * padding),
+                        int(padding):int(-1 * padding)] = image
+            # print(imagePadded)
+        else:
+            imagePadded = image
+
+        # Iterate through image
+        for y in range(image.shape[1]):
+            # Exit Convolution
+            if y > image.shape[1] - yKernShape:
+                break
+            # Only Convolve if y has gone down by the specified Strides
+            if y % strides == 0:
+                for x in range(image.shape[0]):
+                    # Go to next row once kernel is out of bounds
+                    if x > image.shape[0] - xKernShape:
+                        break
+                    try:
+                        # Only Convolve if x has moved by the specified Strides
+                        if x % strides == 0:
+                            output[x, y] = (
+                                kernel * imagePadded[x: x + xKernShape, y: y + yKernShape]).sum()
+                    except:
+                        break
+
+        # plt.figure(1)
+        # plt.imshow(output)
+        # plt.figure(2)
+        # plt.imshow(image)
+        # plt.show()
 
         return self.in_array
 
 
 class pool2D:
 
-    def __init__(self, in_layer):
+    def __init__(self, in_layer, dim, type_pool):
         self.in_layer = in_layer
+        self.dim = dim
+        self.type_pool = type_pool
         pass
 
     def forward(self):
         self.in_array = self.in_layer.forward()
         print("pool2D called")
+
         return self.in_array
 
 
 class full2D:
 
-    def __init__(self, in_layer):
+    def __init__(self, in_layer, bias, T):
         self.in_layer = in_layer
+        self.T = T
+        self.bias = bias
         pass
 
     def forward(self):
@@ -95,25 +140,6 @@ class Relu:
     pass
 
 
-class Bias:
-    """Given an input matrix X, add a trainable constant to each entry."""
-
-    def __init__(self, in_layer):
-        self.in_layer = in_layer
-        num_data, num_in_features = in_layer.out_dims
-        # TODO: Set out_dims to the shape of the output of this linear layer as a numpy array.
-        self.out_dims = np.array([num_data, num_in_features])
-        # TODO: Declare the weight matrix. Be careful how you initialize the matrix.
-        self.W = np.random.randn(1, num_in_features)
-
-    def forward(self):
-        self.in_array = self.in_layer.forward()
-        # TODO: Compute the result of Bias layer, and store it as self.out_array
-        self.out_array = self.in_array + self.W
-        return self.out_array
-    pass
-
-
 class Sigmoid:
 
     # FIX NUMERICAL STABILITY
@@ -129,9 +155,6 @@ class Sigmoid:
 
         return self.out_array
 
-
-def is_modules_with_parameters(value):
-    return isinstance(value, Linear) or isinstance(value, Bias)
 
 # DO NOT CHANGE ANY CODE IN THIS CLASS!
 
