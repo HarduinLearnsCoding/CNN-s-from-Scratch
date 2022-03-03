@@ -17,33 +17,61 @@ class Data:
         return self.data
 
 
-class Conv:
+class conv2D:
     """Given an input matrix X, with one feature vector per row,
     this layer computes XW, where W is a linear operator."""
 
-    def __init__(self, in_layer, num_out_features):
-        assert len(
-            in_layer.out_dims) == 2, "Input layer must contain a list of 1D linear feature data."
-
+    def __init__(self, in_layer):
         self.in_layer = in_layer
-        num_data, num_in_features = in_layer.out_dims
+        pass
+        # assert len(
+        #     in_layer.out_dims) == 2, "Input layer must contain a list of 1D linear feature data."
 
-        # TODO: Set out_dims to the shape of the output of this linear layer as a numpy array e.g. self.out_dims = np.array([x, y])
-        self.out_dims = np.array([num_data, num_out_features])
+        # self.in_layer = in_layer
+        # num_data, num_in_features = in_layer.out_dims
 
-        # TODO: Declare the weight matrix. Be careful how you initialize the matrix.
+        # # TODO: Set out_dims to the shape of the output of this linear layer as a numpy array e.g. self.out_dims = np.array([x, y])
+        # self.out_dims = np.array([num_data, num_out_features])
 
-        self.W = np.random.randn(
-            num_in_features, num_out_features) / np.sqrt(num_in_features)
+        # # TODO: Declare the weight matrix. Be careful how you initialize the matrix.
+
+        # self.W = np.random.randn(
+        #     num_in_features, num_out_features) / np.sqrt(num_in_features)
 
     def forward(self):
         """This function computes XW"""
         self.in_array = self.in_layer.forward()
+        print("conv2D called")
 
         # TODO: Compute the result of linear layer with weight W, and store it as self.out_array
-        self.out_array = self.in_array @ self.W
+        # self.out_array = self.in_array @ self.W
 
-        return self.out_array
+        return self.in_array
+
+
+class pool2D:
+
+    def __init__(self, in_layer):
+        self.in_layer = in_layer
+        pass
+
+    def forward(self):
+        self.in_array = self.in_layer.forward()
+        print("pool2D called")
+        return self.in_array
+
+
+class full2D:
+
+    def __init__(self, in_layer):
+        self.in_layer = in_layer
+        pass
+
+    def forward(self):
+        self.in_array = self.in_layer.forward()
+        print("full2D called")
+
+        return self.in_array
 
 
 class Relu:

@@ -8,7 +8,6 @@ import layers
 
 def create_model(input_size):
     model = Model(input_size)
-    model.layers_list()
     default_data = np.zeros((200, 128, 128))
     data_layer = layers.Data(default_data)
     model.layers_list.append(data_layer)
@@ -16,15 +15,27 @@ def create_model(input_size):
 
 
 def add_conv_layer(model, num_channels, filter_size, activation, T, b):
-    pass
+    # conv_layer = layers.conv2D(num_channels, filter_size, activation, T, b)
+    # print(model.layers_list[-1])
+    conv_layer = layers.conv2D(model.layers_list[-1])
+    model.layers_list.append(conv_layer)
+    return model
 
 
 def add_pooling_layer(model, dim, type):
-    pass
+    # pool_layer = layers.pool2D(dim, type)
+    # print(model.layers_list[-1])
+    pool_layer = layers.pool2D(model.layers_list[-1])
+    model.layers_list.append(pool_layer)
+    return model
 
 
 def add_FC_sigmoid_layer(model, b, T):
-    pass
+    # fully_layer = layers.full2D(b, T)
+    # print(model.layers_list[-1])
+    fully_layer = layers.full2D(model.layers_list[-1])
+    model.layers_list.append(fully_layer)
+    return model
 
 
 def convolve2D(image, kernel, padding=0, strides=1):
@@ -107,7 +118,7 @@ def maxpool2D(image, kernel_size, padding=0, strides=1):
                     # Only Convolve if x has moved by the specified Strides
                     if x % strides == 0:
                         output[x, y] = (
-                            kernel * imagePadded[x: x + xKernShape, y: y + yKernShape]).sum()
+                            np.max(imagePadded[x: x + xKernShape, y: y + yKernShape]))
                 except:
                     break
 
@@ -136,6 +147,8 @@ class Model():
 def main():
 
     # Reading in Images
+
+    dataset_size = (200, 128, 128)
 
     images_Task1_Class0 = list()
     for file in Path("Images/PS2_Images_Task_1_Class_0").iterdir():
@@ -174,6 +187,34 @@ def main():
     images_Task3_Class0 = np.array(images_Task3_Class0)
     images_Task3_Class1 = np.array(images_Task3_Class1)
 
+    images_Task1 = np.concatenate((images_Task1_Class0, images_Task1_Class1))
+    images_Task2 = np.concatenate((images_Task2_Class0, images_Task2_Class1))
+    images_Task3 = np.concatenate((images_Task3_Class0, images_Task3_Class1))
+
+    model = create_model(dataset_size)
+
+    # print(type(model))
+
+    # Setting Data
+
+    model.layers_list[0].set_data(images_Task1)
+
+    model = add_conv_layer(model, 1, 1, 1, 1, 1)
+    model = add_pooling_layer(model, 1, 1)
+    model = add_FC_sigmoid_layer(model, 1, 1)
+
+    # Debugging Help
+
+    print(model.layers_list)
+    print(model.layers_list[-1].forward())
+    # print(model.layers_list[0].forward())
+
+    # print(model.layers_list[0].forward())
+
+    # print(images_Task1.shape)
+    # print(images_Task2.shape)
+    # print(images_Task3.shape)
+
     # Testing convolve2D
 
     # kernel = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
@@ -183,6 +224,8 @@ def main():
     # plt.figure(2)
     # plt.imshow(output, 'gray')
     # plt.show()
+
+    # model.layers_list[0].set_data(images_Task1)
 
     # print(images_Task1_Class0.shape)
 
