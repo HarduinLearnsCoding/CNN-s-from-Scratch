@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 
 
 class Data:
-    """Stores an input array of training data, and hands it to the next layer."""
 
     def __init__(self, data):
         self.data = data
@@ -20,8 +19,6 @@ class Data:
 
 
 class conv2D:
-    """Given an input matrix X, with one feature vector per row,
-    this layer computes XW, where W is a linear operator."""
 
     def __init__(self, in_layer, num_filters, filter_size, activation, T, bias):
 
@@ -44,6 +41,8 @@ class conv2D:
         padding = self.padding
         strides = self.stride
         image = self.in_array[:, :, 0]
+        # print("Shape of the image", image.shape)
+
         xKernShape = kernel.shape[0]
         yKernShape = kernel.shape[1]
         xImgShape = image.shape[0]
@@ -80,13 +79,22 @@ class conv2D:
                     except:
                         break
 
+        if self.activation == 'relu':
+            output = np.maximum(output, 0)
+            self.out_array = output[:, :, None]
+        else
+            self.out_array = output[:, :, None]
         # plt.figure(1)
         # plt.imshow(output)
         # plt.figure(2)
         # plt.imshow(image)
         # plt.show()
 
-        return self.in_array
+        # print("Shape after convolution", output.shape)
+
+        # Done so that it propagates
+
+        return self.out_array
 
 
 class pool2D:
@@ -145,7 +153,9 @@ class pool2D:
 
         # print("Shape after pooling", output.shape)
 
-        return self.in_array
+        self.out_array = output
+
+        return self.out_array
 
 
 class full2D:
@@ -160,6 +170,8 @@ class full2D:
         self.in_array = self.in_layer.forward()
 
         print("full2D called")
+
+        # print("Shape at the output", self.in_array.shape)
 
         return self.in_array
 
@@ -204,97 +216,97 @@ class Sigmoid:
 # DO NOT CHANGE ANY CODE IN THIS CLASS!
 
 
-class ModuleList(collections.abc.MutableSequence):
-    def __init__(self, *args):
-        self.list = list()
-        self.list.extend(list(args))
-        pass
+# class ModuleList(collections.abc.MutableSequence):
+#     def __init__(self, *args):
+#         self.list = list()
+#         self.list.extend(list(args))
+#         pass
 
-    def __getitem__(self, i):
-        return self.list[i]
+#     def __getitem__(self, i):
+#         return self.list[i]
 
-    def __setitem__(self, i, v):
-        self.list[i] = v
+#     def __setitem__(self, i, v):
+#         self.list[i] = v
 
-    def __delitem__(self, i):
-        del self.list[i]
-        pass
+#     def __delitem__(self, i):
+#         del self.list[i]
+#         pass
 
-    def __len__(self):
-        return len(self.list)
+#     def __len__(self):
+#         return len(self.list)
 
-    def insert(self, i, v):
-        self.list.insert(i, v)
-        pass
+#     def insert(self, i, v):
+#         self.list.insert(i, v)
+#         pass
 
-    def get_modules_with_parameters(self):
-        modules_with_parameters = []
-        for mod in self.list:
-            if is_modules_with_parameters(mod):
-                modules_with_parameters.append(mod)
-                pass
-            pass
-        return modules_with_parameters
-    pass
+#     def get_modules_with_parameters(self):
+#         modules_with_parameters = []
+#         for mod in self.list:
+#             if is_modules_with_parameters(mod):
+#                 modules_with_parameters.append(mod)
+#                 pass
+#             pass
+#         return modules_with_parameters
+#     pass
 
 
-class BaseNetwork:
-    def __init__(self):
-        super().__setattr__("initialized", True)
-        super().__setattr__("modules_with_parameters", [])
-        super().__setattr__("output_layer", None)
+# class BaseNetwork:
+#     def __init__(self):
+#         super().__setattr__("initialized", True)
+#         super().__setattr__("modules_with_parameters", [])
+#         super().__setattr__("output_layer", None)
 
-    def set_output_layer(self, layer):
-        super().__setattr__("output_layer", layer)
-        pass
+#     def set_output_layer(self, layer):
+#         super().__setattr__("output_layer", layer)
+#         pass
 
-    def get_output_layer(self):
-        return self.output_layer
+#     def get_output_layer(self):
+#         return self.output_layer
 
-    def __setattr__(self, name, value):
-        if not hasattr(self, "initialized") or (not self.initialized):
-            raise RuntimeError(
-                "You must call super().__init__() before assigning any layer in __init__().")
-        if is_modules_with_parameters(value) or isinstance(value, ModuleList):
-            self.modules_with_parameters.append(value)
-            pass
+#     def __setattr__(self, name, value):
+#         if not hasattr(self, "initialized") or (not self.initialized):
+#             raise RuntimeError(
+#                 "You must call super().__init__() before assigning any layer in __init__().")
+#         if is_modules_with_parameters(value) or isinstance(value, ModuleList):
+#             self.modules_with_parameters.append(value)
+#             pass
 
-        super().__setattr__(name, value)
-        pass
+#         super().__setattr__(name, value)
+#         pass
 
-    def get_modules_with_parameters(self):
-        modules_with_parameters_list = []
-        for mod in self.modules_with_parameters:
-            if isinstance(mod, ModuleList):
+#     def get_modules_with_parameters(self):
+#         modules_with_parameters_list = []
+#         for mod in self.modules_with_parameters:
+#             if isinstance(mod, ModuleList):
 
-                modules_with_parameters_list.extend(
-                    mod.get_modules_with_parameters())
-                pass
-            else:
+#                 modules_with_parameters_list.extend(
+#                     mod.get_modules_with_parameters())
+#                 pass
+#             else:
 
-                modules_with_parameters_list.append(mod)
-                pass
-            pass
-        return modules_with_parameters_list
+#                 modules_with_parameters_list.append(mod)
+#                 pass
+#             pass
+#         return modules_with_parameters_list
 
-    def forward(self):
-        return self.output_layer.forward()
+#     def forward(self):
+#         return self.output_layer.forward()
 
-    def backward(self, input_grad):
-        self.output_layer.backward(input_grad)
-        pass
+#     def backward(self, input_grad):
+#         self.output_layer.backward(input_grad)
+#         pass
 
-    def state_dict(self):
-        all_params = []
-        for m in self.get_modules_with_parameters():
-            all_params.append(m.W)
-            pass
-        return all_params
+#     def state_dict(self):
+#         all_params = []
+#         for m in self.get_modules_with_parameters():
+#             all_params.append(m.W)
+#             pass
+#         return all_params
 
-    def load_state_dict(self, state_dict):
-        assert len(state_dict) == len(self.get_modules_with_parameters())
-        for m, lw in zip(self.get_modules_with_parameters(), state_dict):
-            m.W = lw
-            pass
-        pass
-    pass
+#     def load_state_dict(self, state_dict):
+#         assert len(state_dict) == len(self.get_modules_with_parameters())
+#         for m, lw in zip(self.get_modules_with_parameters(), state_dict):
+#             m.W = lw
+#             pass
+#         pass
+#     pass
