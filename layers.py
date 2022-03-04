@@ -29,7 +29,7 @@ class conv2D:
         self.T = T
         self.bias = bias
         self.filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
-        self.padding = 0
+        self.padding = 1
         self.stride = 1
 
     def forward(self):
@@ -82,7 +82,7 @@ class conv2D:
         if self.activation == 'relu':
             output = np.maximum(output, 0)
             self.out_array = output[:, :, None]
-        else
+        else:
             self.out_array = output[:, :, None]
         # plt.figure(1)
         # plt.imshow(output)
@@ -90,7 +90,7 @@ class conv2D:
         # plt.imshow(image)
         # plt.show()
 
-        # print("Shape after convolution", output.shape)
+        print("Shape after convolution", output.shape)
 
         # Done so that it propagates
 
@@ -103,7 +103,7 @@ class pool2D:
         self.in_layer = in_layer
         self.dim = dim
         self.type_pool = type_pool
-        self.stride = 1
+        self.stride = 2
         self.padding = 0
         pass
 
@@ -151,7 +151,7 @@ class pool2D:
         # plt.imshow(image)
         # plt.show()
 
-        # print("Shape after pooling", output.shape)
+        print("Shape after pooling", output.shape)
 
         self.out_array = output
 
