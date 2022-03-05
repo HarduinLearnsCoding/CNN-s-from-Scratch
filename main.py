@@ -175,27 +175,24 @@ def main():
     images_Task3_Class0 = np.array(images_Task3_Class0)
     images_Task3_Class1 = np.array(images_Task3_Class1)
 
-    images_Task1 = np.zeros((128, 128, 200))
-    images_Task2 = np.zeros((128, 128, 200))
-    images_Task3 = np.zeros((128, 128, 200))
-
-    images_Task1_preshaping = np.concatenate(
+    images_Task1 = np.concatenate(
         (images_Task1_Class0, images_Task1_Class1))
-    images_Task2_preshaping = np.concatenate(
+    images_Task2 = np.concatenate(
         (images_Task2_Class0, images_Task2_Class1))
-    images_Task3_preshaping = np.concatenate(
+    images_Task3 = np.concatenate(
         (images_Task3_Class0, images_Task3_Class1))
 
-    for i in range(images_Task1.shape[0]):
-        images_Task1[:, :, i] = images_Task1_preshaping[i, :, :]
+    images_Task1_Label = np.zeros((images_Task1.shape[0], 1))
+    images_Task2_Label = np.zeros((images_Task2.shape[0], 1))
+    images_Task3_Label = np.zeros((images_Task3.shape[0], 1))
 
-    for i in range(images_Task1.shape[0]):
-        images_Task2[:, :, i] = images_Task2_preshaping[i, :, :]
+    images_Task1_Label[:100, :] = 1
+    images_Task1_Label[100:, :] = 0
+    images_Task2_Label[:100, :] = 1
+    images_Task2_Label[100:, :] = 0
+    images_Task3_Label[:100, :] = 1
+    images_Task3_Label[100:, :] = 0
 
-    for i in range(images_Task1.shape[0]):
-        images_Task3[:, :, i] = images_Task3_preshaping[i, :, :]
-
-    # print(images_Task1.shape)
     # print(images_Task2.shape)
     # print(images_Task3.shape)
 
@@ -205,16 +202,35 @@ def main():
 
     # Setting Data
 
+    # print((images_Task1[:, :, 199] == 0).all())
+
     model.layers_list[0].set_data(images_Task1)
 
-    model = add_conv_layer(model, 1, 1, 1, 1, 1)
-    model = add_pooling_layer(model, 1, 1)
+    model = add_conv_layer(model, 1, 1, 'relu', 1, 1)
+    model = add_pooling_layer(model, 1, 'avg')
     model = add_FC_sigmoid_layer(model, 1, 1)
+
+    predict_label_Task1 = np.zeros((images_Task1.shape[0], 1))
+
+    for i in range(images_Task1.shape[0]):
+        model.layers_list[0].set_data(images_Task1[i, :, :])
+        prediction = model.layers_list[-1].forward()
+        predict_label_Task1[i] = prediction
+
+    # print(predict_label_Task1)
+
+    count = 0
+
+    for i in range(images_Task1.shape[0]):
+        if predict_label_Task1[i] == images_Task1_Label[i]:
+            count += 1
+
+    print("Accuracy ", count / images_Task1.shape[0])
 
     # DEBUGGING ----------------------------------------------------------
 
     # print(model.layers_list)
-    print(model.layers_list[-1].forward())
+    # print(model.layers_list[-1].forward())
     # print(model.layers_list[-1].forward().shape)
     # print(model.layers_list[0].forward())
 

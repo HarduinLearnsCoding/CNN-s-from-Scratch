@@ -29,18 +29,19 @@ class conv2D:
         self.T = T
         self.bias = bias
         self.filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
+        self.laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
         self.padding = 1
         self.stride = 1
 
     def forward(self):
 
         self.in_array = self.in_layer.forward()
-        print("conv2D called")
+        # print("conv2D called")
 
-        kernel = np.flipud(np.fliplr(self.filter))
+        kernel = np.flipud(np.fliplr(self.laplacian))
         padding = self.padding
         strides = self.stride
-        image = self.in_array[:, :, 0]
+        image = self.in_array
         # print("Shape of the image", image.shape)
 
         xKernShape = kernel.shape[0]
@@ -81,16 +82,16 @@ class conv2D:
 
         if self.activation == 'relu':
             output = np.maximum(output, 0)
-            self.out_array = output[:, :, None]
+            self.out_array = output
         else:
-            self.out_array = output[:, :, None]
+            self.out_array = output
         # plt.figure(1)
         # plt.imshow(output)
         # plt.figure(2)
         # plt.imshow(image)
         # plt.show()
 
-        print("Shape after convolution", output.shape)
+        # print("Shape after convolution", output.shape)
 
         # Done so that it propagates
 
@@ -109,9 +110,10 @@ class pool2D:
 
     def forward(self):
         self.in_array = self.in_layer.forward()
-        print("pool2D called")
+        # print(self.in_array)
+        # print("pool2D called")
 
-        image = self.in_array[:, :, 0]
+        image = self.in_array
         # plt.imshow(image)
         # plt.show()
         padding = self.padding
@@ -140,8 +142,13 @@ class pool2D:
                     try:
                         # Only Convolve if x has moved by the specified Strides
                         if x % strides == 0:
-                            output[x, y] = np.max(
-                                image[x: x + xKernShape, y: y + yKernShape]).sum()
+                            if self.type_pool == 'max':
+                                output[x, y] = np.max(
+                                    image[x: x + xKernShape, y: y + yKernShape])
+                            elif self.type_pool == 'avg':
+                                output[x, y] = np.mean(
+                                    image[x: x + xKernShape, y: y + yKernShape])
+
                     except:
                         break
 
@@ -151,7 +158,7 @@ class pool2D:
         # plt.imshow(image)
         # plt.show()
 
-        print("Shape after pooling", output.shape)
+        # print("Shape after pooling", output.shape)
 
         self.out_array = output
 
@@ -164,16 +171,23 @@ class full2D:
         self.in_layer = in_layer
         self.T = T
         self.bias = bias
+        self.bias_P1 = 3500
         pass
 
     def forward(self):
         self.in_array = self.in_layer.forward()
-
-        print("full2D called")
+        # print(self.in_array)
+        self.temp_W = np.ones(self.in_array.shape)
+        self.out_array = self.in_array.ravel().dot(self.temp_W.ravel())
+        self.out_array = self.out_array - self.bias_P1
+        # print("Pre Sigmoid", self.out_array)
+        self.out_array = 1 / (1. + np.exp(-self.out_array))
+        # print("After Sigmoid", self.out_array)
+        # print("full2D called")
 
         # print("Shape at the output", self.in_array.shape)
 
-        return self.in_array
+        return self.out_array
 
 
 class Relu:
