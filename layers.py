@@ -32,7 +32,7 @@ class conv2D:
         self.laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
         self.prewitt = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
         self.square = np.array(
-            [[1, 1, 1, 1,1,1], [1, 0, 0, 0,0,1], [1, 0, 0,0,0, 1],[1,0,0,0,0,1],[1,0,0,0,0,1], [1, 1, 1, 1,1,1]])
+            [[1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1]])
         self.padding = 1
         self.stride = 1
 
@@ -251,102 +251,3 @@ class Sigmoid:
         self.out_array = 1 / (1 + np.exp(-self.in_array))
 
         return self.out_array
-
-
-# DO NOT CHANGE ANY CODE IN THIS CLASS!
-
-
-# class ModuleList(collections.abc.MutableSequence):
-#     def __init__(self, *args):
-#         self.list = list()
-#         self.list.extend(list(args))
-#         pass
-
-#     def __getitem__(self, i):
-#         return self.list[i]
-
-#     def __setitem__(self, i, v):
-#         self.list[i] = v
-
-#     def __delitem__(self, i):
-#         del self.list[i]
-#         pass
-
-#     def __len__(self):
-#         return len(self.list)
-
-#     def insert(self, i, v):
-#         self.list.insert(i, v)
-#         pass
-
-#     def get_modules_with_parameters(self):
-#         modules_with_parameters = []
-#         for mod in self.list:
-#             if is_modules_with_parameters(mod):
-#                 modules_with_parameters.append(mod)
-#                 pass
-#             pass
-#         return modules_with_parameters
-#     pass
-
-
-# class BaseNetwork:
-#     def __init__(self):
-#         super().__setattr__("initialized", True)
-#         super().__setattr__("modules_with_parameters", [])
-#         super().__setattr__("output_layer", None)
-
-#     def set_output_layer(self, layer):
-#         super().__setattr__("output_layer", layer)
-#         pass
-
-#     def get_output_layer(self):
-#         return self.output_layer
-
-#     def __setattr__(self, name, value):
-#         if not hasattr(self, "initialized") or (not self.initialized):
-#             raise RuntimeError(
-#                 "You must call super().__init__() before assigning any layer in __init__().")
-#         if is_modules_with_parameters(value) or isinstance(value, ModuleList):
-#             self.modules_with_parameters.append(value)
-#             pass
-
-#         super().__setattr__(name, value)
-#         pass
-
-#     def get_modules_with_parameters(self):
-#         modules_with_parameters_list = []
-#         for mod in self.modules_with_parameters:
-#             if isinstance(mod, ModuleList):
-
-#                 modules_with_parameters_list.extend(
-#                     mod.get_modules_with_parameters())
-#                 pass
-#             else:
-
-#                 modules_with_parameters_list.append(mod)
-#                 pass
-#             pass
-#         return modules_with_parameters_list
-
-#     def forward(self):
-#         return self.output_layer.forward()
-
-#     def backward(self, input_grad):
-#         self.output_layer.backward(input_grad)
-#         pass
-
-#     def state_dict(self):
-#         all_params = []
-#         for m in self.get_modules_with_parameters():
-#             all_params.append(m.W)
-#             pass
-#         return all_params
-
-#     def load_state_dict(self, state_dict):
-#         assert len(state_dict) == len(self.get_modules_with_parameters())
-#         for m, lw in zip(self.get_modules_with_parameters(), state_dict):
-#             m.W = lw
-#             pass
-#         pass
-#     pass
