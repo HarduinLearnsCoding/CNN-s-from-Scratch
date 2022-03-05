@@ -231,29 +231,55 @@ def main():
 
     # Task 2 -------------------------------------------------------------
 
-    model.layers_list[0].set_data(images_Task2)
+    # model.layers_list[0].set_data(images_Task2)
+
+    # model = add_conv_layer(model, 1, 1, 'relu', 1, 1)
+    # model = add_pooling_layer(model, 1, 'avg')
+    # model = add_FC_sigmoid_layer(model, 1, 1)
+
+    # predict_label_Task2 = np.zeros((images_Task2.shape[0], 1))
+
+    # for i in range(images_Task2.shape[0]):
+    #     model.layers_list[0].set_data(images_Task2[i, :, :])
+    #     prediction = model.layers_list[-1].forward()
+    #     print("Image: ", i)
+    #     predict_label_Task2[i] = prediction
+
+    # # print(predict_label_Task1)
+
+    # count = 0
+
+    # for i in range(images_Task2.shape[0]):
+    #     if predict_label_Task2[i] == images_Task2_Label[i]:
+    #         count += 1
+
+    # print("Accuracy ", count / images_Task2.shape[0])
+
+    # Task 3 --------------------------------------------------------------
+
+    model.layers_list[0].set_data(images_Task3)
 
     model = add_conv_layer(model, 1, 1, 'relu', 1, 1)
     model = add_pooling_layer(model, 1, 'avg')
     model = add_FC_sigmoid_layer(model, 1, 1)
 
-    predict_label_Task2 = np.zeros((images_Task2.shape[0], 1))
+    predict_label_Task3 = np.zeros((images_Task3.shape[0], 1))
 
-    for i in range(images_Task2.shape[0]):
-        model.layers_list[0].set_data(images_Task2[i, :, :])
+    for i in range(images_Task3.shape[0]):
+        model.layers_list[0].set_data(images_Task3[i, :, :])
         prediction = model.layers_list[-1].forward()
         print("Image: ", i)
-        predict_label_Task2[i] = prediction
+        # predict_label_Task3[i] = prediction
 
     # print(predict_label_Task1)
 
-    count = 0
+    # count = 0
 
-    for i in range(images_Task2.shape[0]):
-        if predict_label_Task2[i] == images_Task2_Label[i]:
-            count += 1
+    # for i in range(images_Task3.shape[0]):
+    #     if predict_label_Task3[i] == images_Task3_Label[i]:
+    #         count += 1
 
-    print("Accuracy ", count / images_Task2.shape[0])
+    # print("Accuracy ", count / images_Task3.shape[0])
 
     # DEBUGGING ----------------------------------------------------------
 

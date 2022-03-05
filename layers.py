@@ -181,6 +181,7 @@ class full2D:
         self.bias = bias
         self.bias_P1 = 3500
         self.bias_P2 = 40000
+        self.bias_P3 = 30000
         pass
 
     def forward(self):
@@ -193,8 +194,12 @@ class full2D:
         # self.out_array = self.out_array - self.bias_P1
 
         # Task 2
-        self.out_array = self.out_array - self.bias_P2
+        # self.out_array = self.out_array - self.bias_P2
         # print("Pre Sigmoid", self.out_array)
+
+        # Task 3
+        self.out_array = self.out_array - self.bias_P3
+        print("Raw pre Sigmoid", self.out_array)
 
         if self.out_array >= 0:
             self.out_array = 1 / (1. + np.exp(-self.out_array))
