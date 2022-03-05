@@ -31,6 +31,8 @@ class conv2D:
         self.filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
         self.laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
         self.prewitt = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
+        self.square = np.array(
+            [[1, 1, 1, 1,1,1], [1, 0, 0, 0,0,1], [1, 0, 0,0,0, 1],[1,0,0,0,0,1],[1,0,0,0,0,1], [1, 1, 1, 1,1,1]])
         self.padding = 1
         self.stride = 1
 
@@ -45,7 +47,7 @@ class conv2D:
 
         # Problem 2
 
-        kernel = np.flipud(np.fliplr(self.prewitt))
+        kernel = np.flipud(np.fliplr(self.square))
 
         padding = self.padding
         strides = self.stride
@@ -126,7 +128,7 @@ class pool2D:
         # plt.show()
         padding = self.padding
         strides = self.stride
-        dim = [3, 3]
+        dim = self.in_array.shape
         xKernShape = dim[0]
         yKernShape = dim[1]
         xImgShape = image.shape[0]
@@ -181,7 +183,7 @@ class full2D:
         self.bias = bias
         self.bias_P1 = 3500
         self.bias_P2 = 40000
-        self.bias_P3 = 30000
+        self.bias_P3 = 4000
         pass
 
     def forward(self):
@@ -199,7 +201,7 @@ class full2D:
 
         # Task 3
         self.out_array = self.out_array - self.bias_P3
-        print("Raw pre Sigmoid", self.out_array)
+        # print("Raw pre Sigmoid", self.out_array)
 
         if self.out_array >= 0:
             self.out_array = 1 / (1. + np.exp(-self.out_array))

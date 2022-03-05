@@ -193,6 +193,15 @@ def main():
     images_Task3_Label[:100, :] = 1
     images_Task3_Label[100:, :] = 0
 
+    # with np.printoptions(threshold=np.inf, linewidth=100000):
+    #     print(images_Task3[0, :, :50])
+
+    # plt.imshow(images_Task3[0, :, :50])
+    # plt.show()
+
+    # sns.heatmap(np.array(images_Task3[0, :, :]))
+    # plt.table(cellText=images_Task3[0, :, :],cellLoc='center',loc='center')
+    # plt.show()
     # print(images_Task2.shape)
     # print(images_Task3.shape)
 
@@ -259,8 +268,8 @@ def main():
 
     model.layers_list[0].set_data(images_Task3)
 
-    model = add_conv_layer(model, 1, 1, 'relu', 1, 1)
-    model = add_pooling_layer(model, 1, 'avg')
+    model = add_conv_layer(model, 1, 1, 'none', 1, 1)
+    model = add_pooling_layer(model, 1, 'max')
     model = add_FC_sigmoid_layer(model, 1, 1)
 
     predict_label_Task3 = np.zeros((images_Task3.shape[0], 1))
@@ -269,17 +278,17 @@ def main():
         model.layers_list[0].set_data(images_Task3[i, :, :])
         prediction = model.layers_list[-1].forward()
         print("Image: ", i)
-        # predict_label_Task3[i] = prediction
+        predict_label_Task3[i] = prediction
 
     # print(predict_label_Task1)
 
-    # count = 0
+    count = 0
 
-    # for i in range(images_Task3.shape[0]):
-    #     if predict_label_Task3[i] == images_Task3_Label[i]:
-    #         count += 1
+    for i in range(images_Task3.shape[0]):
+        if predict_label_Task3[i] == images_Task3_Label[i]:
+            count += 1
 
-    # print("Accuracy ", count / images_Task3.shape[0])
+    print("Accuracy ", count / images_Task3.shape[0])
 
     # DEBUGGING ----------------------------------------------------------
 
