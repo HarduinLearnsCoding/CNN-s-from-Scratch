@@ -40,6 +40,134 @@ def add_FC_sigmoid_layer(model, b, T):
 
 
 def perform_classification(task, images):
+
+    dataset_size = (200, 128, 128)
+
+    images_Task1, images_Task2, images_Task3 = images
+
+    # print(images_Task1.shape)
+    # print(images_Task2.shape)
+    # print(images_Task3.shape)
+
+    images_Task1_Label = np.zeros((images_Task1.shape[0], 1))
+    images_Task2_Label = np.zeros((images_Task2.shape[0], 1))
+    images_Task3_Label = np.zeros((images_Task3.shape[0], 1))
+
+    images_Task1_Label[:100, :] = 1
+    images_Task1_Label[100:, :] = 0
+    images_Task2_Label[:100, :] = 0
+    images_Task2_Label[100:, :] = 1
+    images_Task3_Label[:100, :] = 1
+    images_Task3_Label[100:, :] = 0
+
+    # print(images_Task1_Label.shape)
+    # print(images_Task2_Label.shape)
+    # print(images_Task3_Label.shape)
+
+    model = create_model(dataset_size)
+
+    if task == '1':
+
+        model.layers_list[0].set_data(images_Task1)
+
+        laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+
+        bias = 0
+
+        filter_size = laplacian.shape
+
+        num_filters = 1
+
+        dim = [3, 3]
+
+        type_pool = 'avg'
+
+        model = add_conv_layer(
+            model, num_filters, filter_size, 'relu', laplacian, bias)
+        model = add_pooling_layer(model, dim, type_pool)
+        model = add_FC_sigmoid_layer(model, 1, 1)
+
+        predict_label_Task1 = np.zeros((images_Task1.shape[0], 1))
+
+        for i in range(images_Task1.shape[0]):
+            model.layers_list[0].set_data(images_Task1[i, :, :])
+            prediction = model.layers_list[-1].forward()
+            predict_label_Task1[i] = prediction
+
+        # print(predict_label_Task1)
+
+        count = 0
+
+        for i in range(images_Task1.shape[0]):
+            if predict_label_Task1[i] == images_Task1_Label[i]:
+                count += 1
+
+        print("Accuracy ", count / images_Task1.shape[0])
+
+    elif task == '2':
+
+        model.layers_list[0].set_data(images_Task2)
+
+        model = add_conv_layer(model, 1, 1, 'relu', 1, 1)
+        model = add_pooling_layer(model, 1, 'avg')
+        model = add_FC_sigmoid_layer(model, 1, 1)
+
+        predict_label_Task2 = np.zeros((images_Task2.shape[0], 1))
+
+        for i in range(images_Task2.shape[0]):
+            model.layers_list[0].set_data(images_Task2[i, :, :])
+            prediction = model.layers_list[-1].forward()
+            print("Image: ", i)
+            predict_label_Task2[i] = prediction
+
+        # print(predict_label_Task1)
+
+        count = 0
+
+        for i in range(images_Task2.shape[0]):
+            if predict_label_Task2[i] == images_Task2_Label[i]:
+                count += 1
+
+        print("Accuracy ", count / images_Task2.shape[0])
+
+    elif task == '3':
+
+        model.layers_list[0].set_data(images_Task3)
+
+        square = np.array(
+            [[1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1]])
+
+        bias = 0
+
+        filter_size = square.shape
+
+        num_filters = 1
+
+        dim = [3, 3]
+
+        model = add_conv_layer(
+            model, num_filters, filter_size, 'none', square, bias)
+        model = add_pooling_layer(model, dim, 'max')
+        model = add_FC_sigmoid_layer(model, 1, 1)
+
+        predict_label_Task3 = np.zeros((images_Task3.shape[0], 1))
+
+        for i in range(images_Task3.shape[0]):
+            model.layers_list[0].set_data(images_Task3[i, :, :])
+            prediction = model.layers_list[-1].forward()
+            print("Image: ", i)
+            predict_label_Task3[i] = prediction
+
+        # print(predict_label_Task1)
+
+        count = 0
+
+        for i in range(images_Task3.shape[0]):
+            if predict_label_Task3[i] == images_Task3_Label[i]:
+                count += 1
+
+        print("Accuracy ", count / images_Task3.shape[0])
+
     pass
 
 
@@ -55,7 +183,7 @@ def main():
 
     # Reading in Images
 
-    dataset_size = (128, 128, 200)
+    # dataset_size = (200, 128, 128)
 
     images_Task1_Class0 = list()
     for file in Path("Images/PS2_Images_Task_1_Class_0").iterdir():
@@ -101,16 +229,12 @@ def main():
     images_Task3 = np.concatenate(
         (images_Task3_Class0, images_Task3_Class1))
 
-    images_Task1_Label = np.zeros((images_Task1.shape[0], 1))
-    images_Task2_Label = np.zeros((images_Task2.shape[0], 1))
-    images_Task3_Label = np.zeros((images_Task3.shape[0], 1))
+    images = [images_Task1, images_Task2, images_Task3]
 
-    images_Task1_Label[:100, :] = 1
-    images_Task1_Label[100:, :] = 0
-    images_Task2_Label[:100, :] = 0
-    images_Task2_Label[100:, :] = 1
-    images_Task3_Label[:100, :] = 1
-    images_Task3_Label[100:, :] = 0
+    task = input(
+        "Which task do you want to perform ? (1 for Task 1 , 2 for Task 2, 3 for Task 3) \n")
+
+    perform_classification(task, images)
 
     # with np.printoptions(threshold=np.inf, linewidth=100000):
     #     print(images_Task3[0, :, :50])
@@ -124,7 +248,7 @@ def main():
     # print(images_Task2.shape)
     # print(images_Task3.shape)
 
-    model = create_model(dataset_size)
+    # model = create_model(dataset_size)
 
     # print(type(model))
 
@@ -185,29 +309,29 @@ def main():
 
     # Task 3 --------------------------------------------------------------
 
-    model.layers_list[0].set_data(images_Task3)
+    # model.layers_list[0].set_data(images_Task3)
 
-    model = add_conv_layer(model, 1, 1, 'none', 1, 1)
-    model = add_pooling_layer(model, 1, 'max')
-    model = add_FC_sigmoid_layer(model, 1, 1)
+    # model = add_conv_layer(model, 1, 1, 'none', 1, 1)
+    # model = add_pooling_layer(model, 1, 'max')
+    # model = add_FC_sigmoid_layer(model, 1, 1)
 
-    predict_label_Task3 = np.zeros((images_Task3.shape[0], 1))
+    # predict_label_Task3 = np.zeros((images_Task3.shape[0], 1))
 
-    for i in range(images_Task3.shape[0]):
-        model.layers_list[0].set_data(images_Task3[i, :, :])
-        prediction = model.layers_list[-1].forward()
-        print("Image: ", i)
-        predict_label_Task3[i] = prediction
+    # for i in range(images_Task3.shape[0]):
+    #     model.layers_list[0].set_data(images_Task3[i, :, :])
+    #     prediction = model.layers_list[-1].forward()
+    #     print("Image: ", i)
+    #     predict_label_Task3[i] = prediction
 
-    # print(predict_label_Task1)
+    # # print(predict_label_Task1)
 
-    count = 0
+    # count = 0
 
-    for i in range(images_Task3.shape[0]):
-        if predict_label_Task3[i] == images_Task3_Label[i]:
-            count += 1
+    # for i in range(images_Task3.shape[0]):
+    #     if predict_label_Task3[i] == images_Task3_Label[i]:
+    #         count += 1
 
-    print("Accuracy ", count / images_Task3.shape[0])
+    # print("Accuracy ", count / images_Task3.shape[0])
 
     # DEBUGGING ----------------------------------------------------------
 

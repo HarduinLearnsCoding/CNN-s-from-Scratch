@@ -28,11 +28,11 @@ class conv2D:
         self.activation = activation
         self.T = T
         self.bias = bias
-        self.filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
-        self.laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
-        self.prewitt = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
-        self.square = np.array(
-            [[1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1]])
+        # self.filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
+        # self.laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+        # self.prewitt = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
+        # self.square = np.array(
+        #     [[1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1]])
         self.padding = 1
         self.stride = 1
 
@@ -47,7 +47,7 @@ class conv2D:
 
         # Problem 2
 
-        kernel = np.flipud(np.fliplr(self.square))
+        kernel = np.flipud(np.fliplr(self.T))
 
         padding = self.padding
         strides = self.stride
