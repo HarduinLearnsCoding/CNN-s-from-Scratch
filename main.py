@@ -53,10 +53,14 @@ def perform_classification(task, images):
     images_Task2_Label = np.zeros((images_Task2.shape[0], 1))
     images_Task3_Label = np.zeros((images_Task3.shape[0], 1))
 
+    # Labeling
+
     images_Task1_Label[:100, :] = 1
     images_Task1_Label[100:, :] = 0
+
     images_Task2_Label[:100, :] = 0
     images_Task2_Label[100:, :] = 1
+
     images_Task3_Label[:100, :] = 1
     images_Task3_Label[100:, :] = 0
 
@@ -78,20 +82,27 @@ def perform_classification(task, images):
 
         num_filters = 1
 
+        activation = 'relu'
+
         dim = [3, 3]
 
         type_pool = 'avg'
 
+        bias_FC = 3500
+
+        T_FC = None   # Automatically get shape from previous layer
+
         model = add_conv_layer(
-            model, num_filters, filter_size, 'relu', laplacian, bias)
+            model, num_filters, filter_size, activation, laplacian, bias)
         model = add_pooling_layer(model, dim, type_pool)
-        model = add_FC_sigmoid_layer(model, 1, 1)
+        model = add_FC_sigmoid_layer(model, bias_FC, T_FC)
 
         predict_label_Task1 = np.zeros((images_Task1.shape[0], 1))
 
         for i in range(images_Task1.shape[0]):
             model.layers_list[0].set_data(images_Task1[i, :, :])
             prediction = model.layers_list[-1].forward()
+            print("Image: ", i)
             predict_label_Task1[i] = prediction
 
         # print(predict_label_Task1)
@@ -106,11 +117,30 @@ def perform_classification(task, images):
 
     elif task == '2':
 
+        prewitt = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
+
+        bias = 0
+
+        filter_size = prewitt.shape
+
+        num_filters = 1
+
+        activation = 'relu'
+
+        dim = [3, 3]
+
+        type_pool = 'avg'
+
+        bias_FC = 40000
+
+        T_FC = None   # Automatically get shape from previous layer
+
         model.layers_list[0].set_data(images_Task2)
 
-        model = add_conv_layer(model, 1, 1, 'relu', 1, 1)
-        model = add_pooling_layer(model, 1, 'avg')
-        model = add_FC_sigmoid_layer(model, 1, 1)
+        model = add_conv_layer(
+            model, num_filters, filter_size, activation, prewitt, bias)
+        model = add_pooling_layer(model, dim, type_pool)
+        model = add_FC_sigmoid_layer(model, bias_FC, T_FC)
 
         predict_label_Task2 = np.zeros((images_Task2.shape[0], 1))
 
@@ -143,12 +173,20 @@ def perform_classification(task, images):
 
         num_filters = 1
 
-        dim = [3, 3]
+        dim = None  # Global MAX
+
+        bias_FC = 4000
+
+        type_pool = 'max'
+
+        activation = 'none'
+
+        T_FC = None   # Automatically get shape from previous layer
 
         model = add_conv_layer(
-            model, num_filters, filter_size, 'none', square, bias)
-        model = add_pooling_layer(model, dim, 'max')
-        model = add_FC_sigmoid_layer(model, 1, 1)
+            model, num_filters, filter_size, activation, square, bias)
+        model = add_pooling_layer(model, dim, type_pool)
+        model = add_FC_sigmoid_layer(model, bias_FC, T_FC)
 
         predict_label_Task3 = np.zeros((images_Task3.shape[0], 1))
 
