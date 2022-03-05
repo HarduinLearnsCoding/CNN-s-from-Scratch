@@ -30,6 +30,7 @@ class conv2D:
         self.bias = bias
         self.filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 9
         self.laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+        self.prewitt = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
         self.padding = 1
         self.stride = 1
 
@@ -38,7 +39,14 @@ class conv2D:
         self.in_array = self.in_layer.forward()
         # print("conv2D called")
 
-        kernel = np.flipud(np.fliplr(self.laplacian))
+        # Problem 1
+
+        # kernel = np.flipud(np.fliplr(self.laplacian))
+
+        # Problem 2
+
+        kernel = np.flipud(np.fliplr(self.prewitt))
+
         padding = self.padding
         strides = self.stride
         image = self.in_array
@@ -172,6 +180,7 @@ class full2D:
         self.T = T
         self.bias = bias
         self.bias_P1 = 3500
+        self.bias_P2 = 40000
         pass
 
     def forward(self):
@@ -179,9 +188,19 @@ class full2D:
         # print(self.in_array)
         self.temp_W = np.ones(self.in_array.shape)
         self.out_array = self.in_array.ravel().dot(self.temp_W.ravel())
-        self.out_array = self.out_array - self.bias_P1
+
+        # Task 1
+        # self.out_array = self.out_array - self.bias_P1
+
+        # Task 2
+        self.out_array = self.out_array - self.bias_P2
         # print("Pre Sigmoid", self.out_array)
-        self.out_array = 1 / (1. + np.exp(-self.out_array))
+
+        if self.out_array >= 0:
+            self.out_array = 1 / (1. + np.exp(-self.out_array))
+        else:
+            self.out_array = np.exp(self.out_array) / \
+                (1. + np.exp(self.out_array))
         # print("After Sigmoid", self.out_array)
         # print("full2D called")
 
