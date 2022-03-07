@@ -72,9 +72,13 @@ def perform_classification(task, images):
 
     if task == '1':
 
+        images_Task1 = images_Task1[:, np.newaxis, :, :]
+
         model.layers_list[0].set_data(images_Task1)
 
         laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+
+        laplacian=laplacian[np.newaxis,:,:]
 
         bias = 0
 
@@ -119,6 +123,8 @@ def perform_classification(task, images):
 
         prewitt = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
 
+        prewitt = prewitt[np.newaxis,:,:]
+
         bias = 0
 
         filter_size = prewitt.shape
@@ -131,9 +137,11 @@ def perform_classification(task, images):
 
         type_pool = 'avg'
 
-        bias_FC = 40000
+        bias_FC = 40500
 
         T_FC = None   # Automatically get shape from previous layer
+
+        images_Task2 = images_Task2[:, np.newaxis, :, :]
 
         model.layers_list[0].set_data(images_Task2)
 
@@ -145,7 +153,7 @@ def perform_classification(task, images):
         predict_label_Task2 = np.zeros((images_Task2.shape[0], 1))
 
         for i in range(images_Task2.shape[0]):
-            model.layers_list[0].set_data(images_Task2[i, :, :])
+            model.layers_list[0].set_data(images_Task2[i, :,:, :])
             prediction = model.layers_list[-1].forward()
             print("Image: ", i)
             predict_label_Task2[i] = prediction
