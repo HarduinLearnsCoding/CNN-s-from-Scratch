@@ -80,7 +80,7 @@ def perform_classification(task, images):
 
         filter_size = laplacian.shape
 
-        num_filters = 1
+        num_channels = 1
 
         activation = 'relu'
 
@@ -93,7 +93,7 @@ def perform_classification(task, images):
         T_FC = None   # Automatically get shape from previous layer
 
         model = add_conv_layer(
-            model, num_filters, filter_size, activation, laplacian, bias)
+            model, num_channels, filter_size, activation, laplacian, bias)
         model = add_pooling_layer(model, dim, type_pool)
         model = add_FC_sigmoid_layer(model, bias_FC, T_FC)
 
@@ -123,7 +123,7 @@ def perform_classification(task, images):
 
         filter_size = prewitt.shape
 
-        num_filters = 1
+        num_channels = 1
 
         activation = 'relu'
 
@@ -138,7 +138,7 @@ def perform_classification(task, images):
         model.layers_list[0].set_data(images_Task2)
 
         model = add_conv_layer(
-            model, num_filters, filter_size, activation, prewitt, bias)
+            model, num_channels, filter_size, activation, prewitt, bias)
         model = add_pooling_layer(model, dim, type_pool)
         model = add_FC_sigmoid_layer(model, bias_FC, T_FC)
 
@@ -162,36 +162,66 @@ def perform_classification(task, images):
 
     elif task == '3':
 
+        images_Task3 = images_Task3[:, np.newaxis, :, :]
+
+        # print(images_Task3.shape)
+
         model.layers_list[0].set_data(images_Task3)
 
-        square = np.array(
-            [[1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1]])
+        # square = np.array(
+        #     [[1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1]])
+
+        square3x3 = np.array([[[1, 1, 1], [1, 0, 0], [1, 0, 0]], [[
+                             1, 1, 1], [0, 0, 1], [0, 0, 1]], [[1, 0, 0], [1, 0, 0], [1, 1, 1]], [[0, 0, 1], [0, 0, 1], [1, 1, 1]]])
+
+        squarepointy=np.array([[[1,0,1],[0,0,0],[1,0,1]],[[1,0,1],[0,0,0],[1,0,1]],[[1,0,1],[0,0,0],[1,0,1]],[[1,0,1],[0,0,0],[1,0,1]]])
+
+        square5x5= np.array([[[1, 1, 1,1,1], [1, 0, 0,0,0], [1, 0, 0,0,0],[1, 0, 0,0,0],[1, 0, 0,0,0]], [[
+                             1, 1, 1,1,1], [0, 0, 0,0,1], [0, 0, 0,0,1],[0, 0, 0,0,1],[0, 0, 0,0,1]], [[
+                             0, 0, 0,0,1], [0, 0, 0,0,1], [0, 0, 0,0,1],[0, 0, 0,0,1],[1, 1, 1,1,1]], [[
+                             1, 0, 0,0,0], [1, 0, 0,0,0], [1, 0, 0,0,0],[1, 0, 0,0,0],[1, 1, 1,1,1]]])
+
+        # impulse=np.array([[[0,0,0],[0,1,0],[0,0,0]],[[0,0,0],[0,1,0],[0,0,0]],[[0,0,0],[0,1,0],[0,0,0]],[[0,0,0],[0,1,0],[0,0,0]]])
+
+        # print("Pointy Shape:", squarepointy.shape)
+        # print("Kernel Shape: ",square3x3.shape)
 
         bias = 0
 
-        filter_size = square.shape
+        filter_size = square3x3.shape
 
-        num_filters = 1
+        num_channels = 1
 
-        dim = None  # Global MAX
+        dim = [4,4]
 
-        bias_FC = 4000
+        bias_FC = 0
 
         type_pool = 'max'
 
-        activation = 'none'
+        activation = 'relu'
+
+        dimglobal=None
 
         T_FC = None   # Automatically get shape from previous layer
 
         model = add_conv_layer(
-            model, num_filters, filter_size, activation, square, bias)
+            model, num_channels, filter_size, activation, square5x5, bias)
         model = add_pooling_layer(model, dim, type_pool)
+
+        num_channels_2=4
+
+        filter_size_2= squarepointy.shape
+
+        model= add_conv_layer(
+            model, num_channels_2, filter_size_2, activation, squarepointy, bias)
+        model=add_pooling_layer(model, dimglobal, type_pool)
         model = add_FC_sigmoid_layer(model, bias_FC, T_FC)
 
         predict_label_Task3 = np.zeros((images_Task3.shape[0], 1))
 
         for i in range(images_Task3.shape[0]):
-            model.layers_list[0].set_data(images_Task3[i, :, :])
+        # for i in range(1):
+            model.layers_list[0].set_data(images_Task3[i, :, :, :])
             prediction = model.layers_list[-1].forward()
             print("Image: ", i)
             predict_label_Task3[i] = prediction

@@ -1,6 +1,7 @@
 import numpy as np
 import collections.abc
 import matplotlib.pyplot as plt
+np.set_printoptions(threshold=np.inf, linewidth=10000000000)
 
 
 class Data:
@@ -18,10 +19,10 @@ class Data:
 
 class conv2D:
 
-    def __init__(self, in_layer, num_filters, filter_size, activation, T, bias):
+    def __init__(self, in_layer, num_channels, filter_size, activation, T, bias):
 
         self.in_layer = in_layer
-        self.num_filters = num_filters
+        self.num_channels = num_channels
         self.filter_size = filter_size
         self.activation = activation
         self.T = T
@@ -31,55 +32,151 @@ class conv2D:
 
     def forward(self):
 
+        # print("Conv2D Called")
+        np.set_printoptions(threshold=np.inf, linewidth=10000000000)
         self.in_array = self.in_layer.forward()
-
-        kernel = np.flipud(np.fliplr(self.T))
 
         padding = self.padding
         strides = self.stride
         image = self.in_array
+        # for i in range(self.in_array.shape[0]):
+        #     print("Image Channel {}:".format(i), image[i, :, :40])
 
-        xKernShape = kernel.shape[0]
-        yKernShape = kernel.shape[1]
-        xImgShape = image.shape[0]
-        yImgShape = image.shape[1]
-        xOutput = int(((xImgShape - xKernShape + 2 * padding) / strides) + 1)
-        yOutput = int(((yImgShape - yKernShape + 2 * padding) / strides) + 1)
-        output = np.zeros((xOutput, yOutput))
+        xImgShape = image.shape[1]
+        yImgShape = image.shape[2]
+        self.num_filters = self.T.shape[0]
 
-        if padding != 0:
-            imagePadded = np.zeros(
-                (image.shape[0] + padding * 2, image.shape[1] + padding * 2))
-            imagePadded[int(padding):int(-1 * padding),
-                        int(padding):int(-1 * padding)] = image
+        if self.num_channels == self.num_filters:
+
+            appendout = []
+
+            for i in range(self.num_filters):
+
+                kernel = self.T[i, :, :]
+                image = self.in_array[i, :, :]
+                kernel = np.flipud(np.fliplr(kernel))
+                xKernShape = kernel.shape[0]
+                yKernShape = kernel.shape[1]
+
+                xOutput = int(
+                    ((xImgShape - xKernShape + 2 * padding) / strides) + 1)
+                yOutput = int(
+                    ((yImgShape - yKernShape + 2 * padding) / strides) + 1)
+                output = np.zeros((xOutput, yOutput))
+
+                # print("Images Shape:", image.shape)
+
+                if padding != 0:
+                    imagePadded = np.zeros(
+                        (image.shape[0] + padding * 2, image.shape[1] + padding * 2))
+                    imagePadded[int(padding):int(-1 * padding),
+                                int(padding):int(-1 * padding)] = image
+
+                else:
+                    imagePadded = image
+
+                # Iterate through image
+                for y in range(image.shape[1]):
+                    # Exit Convolution
+                    if y > image.shape[1] - yKernShape:
+                        break
+
+                    if y % strides == 0:
+                        for x in range(image.shape[0]):
+
+                            if x > image.shape[0] - xKernShape:
+                                break
+                            try:
+
+                                if x % strides == 0:
+                                    output[x, y] = (
+                                        kernel * imagePadded[x: x + xKernShape, y: y + yKernShape]).sum()
+                            except:
+                                break
+
+                if self.activation == 'relu':
+                    output = np.maximum(output, 0)
+                    self.out_array = output
+                else:
+                    self.out_array = output
+
+                appendout.append(output)
+
+            self.out_array = sum(appendout)
+
+            self.out_array = self.out_array[np.newaxis, :, :]
+
+            # print("IF CONV2D \n", np.maximum(
+            #     self.out_array[0, :, :40] - 1274, 0))
+
+            # print("if", self.out_array.shape)
 
         else:
-            imagePadded = image
 
-        # Iterate through image
-        for y in range(image.shape[1]):
-            # Exit Convolution
-            if y > image.shape[1] - yKernShape:
-                break
+            appendout = []
 
-            if y % strides == 0:
-                for x in range(image.shape[0]):
+            for i in range(self.num_filters):
 
-                    if x > image.shape[0] - xKernShape:
+                # print(self.T.shape)
+                image = self.in_array[0, :, :]
+                kernel = self.T[i, :, :]
+                kernel = np.flipud(np.fliplr(kernel))
+
+                xKernShape = kernel.shape[0]
+                yKernShape = kernel.shape[1]
+
+                xOutput = int(
+                    ((xImgShape - xKernShape + 2 * padding) / strides) + 1)
+                yOutput = int(
+                    ((yImgShape - yKernShape + 2 * padding) / strides) + 1)
+                output = np.zeros((xOutput, yOutput))
+
+                if padding != 0:
+                    imagePadded = np.zeros(
+                        (image.shape[0] + padding * 2, image.shape[1] + padding * 2))
+                    imagePadded[int(padding):int(-1 * padding),
+                                int(padding):int(-1 * padding)] = image
+
+                else:
+                    imagePadded = image
+
+                # Iterate through image
+                for y in range(image.shape[1]):
+                    # Exit Convolution
+                    if y > image.shape[1] - yKernShape:
                         break
-                    try:
 
-                        if x % strides == 0:
-                            output[x, y] = (
-                                kernel * imagePadded[x: x + xKernShape, y: y + yKernShape]).sum()
-                    except:
-                        break
+                    if y % strides == 0:
+                        for x in range(image.shape[0]):
 
-        if self.activation == 'relu':
-            output = np.maximum(output, 0)
-            self.out_array = output
-        else:
-            self.out_array = output
+                            if x > image.shape[0] - xKernShape:
+                                break
+                            try:
+
+                                if x % strides == 0:
+                                    output[x, y] = (
+                                        kernel * imagePadded[x: x + xKernShape, y: y + yKernShape]).sum()
+                            except:
+                                break
+
+                if self.activation == 'relu':
+                    output = np.maximum(output, 0)
+                    self.out_array = output
+                else:
+                    self.out_array = output
+
+                appendout.append(output)
+
+            self.out_array = np.stack(appendout)
+
+            # for i in range(self.out_array.shape[0]):
+            #     print("Channel {} \n".format(i), np.maximum(
+            #         self.out_array[i, :, :40] - 1274, 0))
+            # print("Channel {} \n".format(i),
+            #       self.out_array[i, :, :40])
+            # print("Else", self.out_array.shape)
+
+        # print("Conv2D Out Shape", self.out_array.shape)
 
         return self.out_array
 
@@ -95,49 +192,72 @@ class pool2D:
         pass
 
     def forward(self):
+
+        # print("Pool2D Called")
+
         self.in_array = self.in_layer.forward()
 
-        image = self.in_array
+        imagenew = self.in_array
         padding = self.padding
         strides = self.stride
+        self.num_filters = self.in_array.shape[0]
 
         if self.dim == None:
             dim = self.in_array.shape
         else:
             dim = self.dim
 
-        xKernShape = dim[0]
-        yKernShape = dim[1]
-        xImgShape = image.shape[0]
-        yImgShape = image.shape[1]
-        xOutput = int(((xImgShape - xKernShape + 2 * padding) / strides) + 1)
-        yOutput = int(((yImgShape - yKernShape + 2 * padding) / strides) + 1)
-        output = np.zeros((xOutput, yOutput))
+        appendout = []
 
-        for y in range(image.shape[1]):
+        # print("image Shape: ", imagenew.shape)
 
-            if y > image.shape[1] - yKernShape:
-                break
+        for i in range(self.num_filters):
 
-            if y % strides == 0:
-                for x in range(image.shape[0]):
+            image = imagenew[i, :, :]
+            if self.dim == None:
+                xKernShape = dim[1]
+                yKernShape = dim[2]
+            else:
+                xKernShape = dim[0]
+                yKernShape = dim[1]
+            xImgShape = image.shape[0]
+            yImgShape = image.shape[1]
+            xOutput = int(
+                ((xImgShape - xKernShape + 2 * padding) / strides) + 1)
+            yOutput = int(
+                ((yImgShape - yKernShape + 2 * padding) / strides) + 1)
+            output = np.zeros((xOutput, yOutput))
 
-                    if x > image.shape[0] - xKernShape:
-                        break
-                    try:
+            for y in range(image.shape[1]):
 
-                        if x % strides == 0:
-                            if self.type_pool == 'max':
-                                output[x, y] = np.max(
-                                    image[x: x + xKernShape, y: y + yKernShape])
-                            elif self.type_pool == 'avg':
-                                output[x, y] = np.mean(
-                                    image[x: x + xKernShape, y: y + yKernShape])
+                if y > image.shape[1] - yKernShape:
+                    break
 
-                    except:
-                        break
+                if y % strides == 0:
+                    for x in range(image.shape[0]):
 
-        self.out_array = output
+                        if x > image.shape[0] - xKernShape:
+                            break
+                        try:
+
+                            if x % strides == 0:
+                                if self.type_pool == 'max':
+                                    output[x, y] = np.max(
+                                        image[x: x + xKernShape, y: y + yKernShape])
+                                elif self.type_pool == 'avg':
+                                    output[x, y] = np.mean(
+                                        image[x: x + xKernShape, y: y + yKernShape])
+
+                        except:
+                            break
+
+            appendout.append(output)
+
+        self.out_array = np.stack(appendout)
+
+        # self.out_array = output
+
+        # print("Pool2D Out Shape", self.out_array.shape)
 
         return self.out_array
 
@@ -158,7 +278,7 @@ class full2D:
         self.out_array = self.in_array.ravel().dot(self.W.ravel())
 
         self.out_array = self.out_array - self.bias
-        # print("Raw pre Sigmoid", self.out_array)
+        print("Raw pre Sigmoid", self.out_array)
 
         if self.out_array >= 0:
             self.out_array = 1 / (1. + np.exp(-self.out_array))
