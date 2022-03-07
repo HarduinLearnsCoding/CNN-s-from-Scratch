@@ -244,6 +244,61 @@ def perform_classification(task, images):
 
         print("Accuracy ", count / images_Task3.shape[0])
 
+    elif task=='3b':
+
+        images_Task3 = images_Task3[:, np.newaxis, :, :]
+
+        # print(images_Task3.shape)
+
+        model.layers_list[0].set_data(images_Task3)
+
+        square = np.array(
+            [[1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1]])
+
+        square=square[np.newaxis,:,:]
+
+        bias = 0
+
+        filter_size = square.shape
+
+        num_channels = 1
+
+        dim = [2,2]
+
+        bias_FC = 4000
+
+        type_pool = 'max'
+
+        activation = 'none'
+
+        dimglobal=None
+
+        T_FC = None   # Automatically get shape from previous layer
+
+        model = add_conv_layer(
+            model, num_channels, filter_size, activation, square, bias)
+        model=add_pooling_layer(model, dimglobal, type_pool)
+        model = add_FC_sigmoid_layer(model, bias_FC, T_FC)
+
+        predict_label_Task3 = np.zeros((images_Task3.shape[0], 1))
+
+        for i in range(images_Task3.shape[0]):
+        # for i in range(1):
+            model.layers_list[0].set_data(images_Task3[i, :, :, :])
+            prediction = model.layers_list[-1].forward()
+            print("Image: ", i)
+            predict_label_Task3[i] = prediction
+
+        # print(predict_label_Task1)
+
+        count = 0
+
+        for i in range(images_Task3.shape[0]):
+            if predict_label_Task3[i] == images_Task3_Label[i]:
+                count += 1
+
+        print("Accuracy ", count / images_Task3.shape[0])
+
     pass
 
 
@@ -308,7 +363,7 @@ def main():
     images = [images_Task1, images_Task2, images_Task3]
 
     task = input(
-        "Which task do you want to perform ? (1 for Task 1 , 2 for Task 2, 3 for Task 3) \n")
+        "Which task do you want to perform ? (1 for Task 1 (Implemented with EC) , 2 for Task 2, 3 for Task 3, 3b for Task 3 with EC) \nEC stands for Extra Credit \n ")
 
     perform_classification(task, images)
 
