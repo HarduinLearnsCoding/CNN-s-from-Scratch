@@ -278,13 +278,13 @@ class full2D:
         self.out_array = self.in_array.ravel().dot(self.W.ravel())
 
         self.out_array = self.out_array - self.bias
-        print("Raw pre Sigmoid", self.out_array)
+        # print("Raw pre Sigmoid", self.out_array)
 
         if self.out_array >= 0:
             self.out_array = 1 / (1. + np.exp(-self.out_array))
         else:
             self.out_array = np.exp(self.out_array) / \
                 (1. + np.exp(self.out_array))
-        # print("After Sigmoid", self.out_array)
+        print("After Sigmoid", self.out_array)
 
         return self.out_array

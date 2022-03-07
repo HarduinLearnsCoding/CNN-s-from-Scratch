@@ -192,9 +192,9 @@ def perform_classification(task, images):
 
         num_channels = 1
 
-        dim = [4,4]
+        dim = [2,2]
 
-        bias_FC = 0
+        bias_FC = 17500
 
         type_pool = 'max'
 
