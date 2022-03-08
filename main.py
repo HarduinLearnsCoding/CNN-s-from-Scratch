@@ -168,7 +168,10 @@ def perform_classification(task, images):
 
         print("Accuracy ", count / images_Task2.shape[0])
 
-    elif task == '3':
+    elif task == '3b':
+
+        kernel_feed=input("Which kernel size? (1 : 3x3,  2 : 5x5) \n")
+
 
         images_Task3 = images_Task3[:, np.newaxis, :, :]
 
@@ -202,7 +205,7 @@ def perform_classification(task, images):
 
         dim = [2,2]
 
-        bias_FC = 17500
+        bias_FC = 0
 
         type_pool = 'max'
 
@@ -212,8 +215,15 @@ def perform_classification(task, images):
 
         T_FC = None   # Automatically get shape from previous layer
 
+        if kernel_feed=='1':
+            kernel=square3x3
+            bias_FC=13000
+        elif kernel_feed=='2':
+            kernel=square5x5
+            bias_FC=17500
+
         model = add_conv_layer(
-            model, num_channels, filter_size, activation, square5x5, bias)
+            model, num_channels, filter_size, activation, kernel, bias)
         model = add_pooling_layer(model, dim, type_pool)
 
         num_channels_2=4
@@ -244,7 +254,7 @@ def perform_classification(task, images):
 
         print("Accuracy ", count / images_Task3.shape[0])
 
-    elif task=='3b':
+    elif task=='3':
 
         images_Task3 = images_Task3[:, np.newaxis, :, :]
 
